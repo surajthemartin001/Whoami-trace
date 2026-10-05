@@ -1,0 +1,6 @@
+{
+  "name": "WHO AM I?",
+  "description": "A unified personal AI learning, planning, practice and life-direction platform with LYRA fairy AI assistant, Success Track, adaptive question engine, and NEXORA workspace.",
+  "requestFramePermissions": ["microphone", "camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
