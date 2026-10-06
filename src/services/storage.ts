@@ -493,7 +493,20 @@ export const StorageService = {
   getUserProfile(): UserProfile {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
-      return data ? JSON.parse(data) : DEFAULT_USER;
+      if (!data) return DEFAULT_USER;
+      const parsed = JSON.parse(data);
+      return {
+        ...DEFAULT_USER,
+        ...parsed,
+        permissions: {
+          ...DEFAULT_USER.permissions,
+          ...(parsed.permissions || {}),
+        },
+        currentIntensity: {
+          ...DEFAULT_USER.currentIntensity,
+          ...(parsed.currentIntensity || {}),
+        },
+      };
     } catch {
       return DEFAULT_USER;
     }
@@ -724,7 +737,21 @@ export const StorageService = {
   getLyraConfig(): LyraConfig {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.LYRA_CONFIG);
-      return data ? JSON.parse(data) : DEFAULT_LYRA_CONFIG;
+      if (!data) return DEFAULT_LYRA_CONFIG;
+      const parsed = JSON.parse(data);
+      return {
+        ...DEFAULT_LYRA_CONFIG,
+        ...parsed,
+        sliders: {
+          ...DEFAULT_LYRA_CONFIG.sliders,
+          ...(parsed.sliders || {}),
+        },
+        voice: {
+          ...DEFAULT_LYRA_CONFIG.voice,
+          ...(parsed.voice || {}),
+        },
+        memories: Array.isArray(parsed.memories) ? parsed.memories : DEFAULT_LYRA_CONFIG.memories,
+      };
     } catch {
       return DEFAULT_LYRA_CONFIG;
     }

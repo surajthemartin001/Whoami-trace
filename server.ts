@@ -1,9 +1,14 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -655,14 +660,17 @@ app.post('/api/lyra/test-custom-api', async (req, res) => {
 const isProduction = process.env.NODE_ENV === 'production';
 if (!isProduction) {
   const vite = await createViteServer({
-    server: { middlewareMode: true },
+    server: {
+      middlewareMode: true,
+      hmr: false,
+    },
     appType: 'spa',
   });
   app.use(vite.middlewares);
 } else {
-  app.use(express.static('dist'));
+  app.use(express.static(path.resolve(__dirname, 'dist')));
   app.get('*', (req, res) => {
-    res.sendFile('dist/index.html', { root: '.' });
+    res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
   });
 }
 

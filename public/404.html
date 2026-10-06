@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>WHO AM I? — Loading</title>
+    <script>
+      // GitHub Pages SPA fallback
+      const pathSegments = window.location.pathname.split('/').filter(Boolean);
+      const repoName = pathSegments.length > 0 ? pathSegments[0] : '';
+      const targetHash = pathSegments.slice(1).join('/');
+      const destination = '/' + (repoName ? repoName + '/' : '') + (targetHash ? '#' + targetHash : '');
+      window.location.replace(destination);
+    </script>
+  </head>
+  <body style="background:#020617;color:#94a3b8;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">
+    <p>Redirecting to WHO AM I? OS...</p>
+  </body>
+</html>

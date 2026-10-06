@@ -44,8 +44,34 @@ export default function App() {
   const [goals, setGoals] = useState<Goal[]>(StorageService.getGoals());
   const [tasks, setTasks] = useState<PlanTask[]>(StorageService.getTasks());
   const [analytics, setAnalytics] = useState<AnalyticsData>(StorageService.getAnalytics());
-  const [currentSection, setCurrentSection] = useState<NavigationSection>('HOME');
+  // Helper to parse section from URL hash for GitHub Pages deep linking
+  const getSectionFromHash = (): NavigationSection => {
+    if (typeof window === 'undefined') return 'HOME';
+    const hash = window.location.hash.replace('#', '').toUpperCase();
+    const validSections: NavigationSection[] = [
+      'HOME', 'GOALS', 'RESOURCES', 'PLAN', 'PRACTICE', 'REVISION', 'QUESTIONS', 'ANALYTICS', 'MY', 'NEXORA', 'SETTINGS'
+    ];
+    return validSections.includes(hash as NavigationSection) ? (hash as NavigationSection) : 'HOME';
+  };
+
+  const [currentSection, setCurrentSection] = useState<NavigationSection>(getSectionFromHash);
   const [lyraConfig, setLyraConfig] = useState<LyraConfig>(StorageService.getLyraConfig());
+
+  // Listen to browser hash changes (back/forward navigation)
+  useEffect(() => {
+    const onHashChange = () => {
+      setCurrentSection(getSectionFromHash());
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const handleNavigate = (section: NavigationSection) => {
+    setCurrentSection(section);
+    if (typeof window !== 'undefined') {
+      window.location.hash = section.toLowerCase();
+    }
+  };
 
   // Modal states
   const [showOnboarding, setShowOnboarding] = useState(!user.isOnboarded);
@@ -90,7 +116,7 @@ export default function App() {
       handleStartPracticeSession(qs.slice(0, 20), 'LYRA Curated Practice Pack');
     } else if (action.type === 'create_plan' || action.action === 'view_plan') {
       setShowLyra(false);
-      setCurrentSection('PLAN');
+      handleNavigate('PLAN');
     } else if (action.type === 'recovery') {
       setShowLyra(false);
       setShowRecovery(true);
@@ -99,7 +125,7 @@ export default function App() {
       setShowReassessment(true);
     } else if (action.type === 'navigate' && action.payload?.section) {
       setShowLyra(false);
-      setCurrentSection(action.payload.section);
+      handleNavigate(action.payload.section);
     }
   };
 
@@ -108,7 +134,7 @@ export default function App() {
       {/* Top Header & Mobile Nav Bar */}
       <Navigation
         currentSection={currentSection}
-        onSelectSection={(sec) => setCurrentSection(sec)}
+        onSelectSection={(sec) => handleNavigate(sec)}
         onOpenLyra={() => {
           setLyraInitialPrompt('');
           setShowLyra(true);
@@ -125,7 +151,7 @@ export default function App() {
             goals={goals}
             tasks={tasks}
             analytics={analytics}
-            onNavigate={(sec) => setCurrentSection(sec as NavigationSection)}
+            onNavigate={(sec) => handleNavigate(sec as NavigationSection)}
             onOpenLyra={() => {
               setLyraInitialPrompt('');
               setShowLyra(true);
@@ -210,7 +236,7 @@ export default function App() {
           <MyView
             user={user}
             analytics={analytics}
-            onOpenSettings={() => setCurrentSection('SETTINGS')}
+            onOpenSettings={() => handleNavigate('SETTINGS')}
             onOpenLyra={() => {
               setLyraInitialPrompt('');
               setShowLyra(true);
